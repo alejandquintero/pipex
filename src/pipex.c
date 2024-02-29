@@ -6,20 +6,17 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 21:36:12 by aquinter          #+#    #+#             */
-/*   Updated: 2024/02/26 22:57:53 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/02/29 22:52:23 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <fcntl.h>
+#include "../inc/pipex.h"
 
-int	main(int argc, char *argv[]){
+int	main(int argc, char *argv[], char *envp[]){
 
 	(void)argc;
 	(void)argv;
+	char **paths;
 	int pid_1;
 	int	pid_2;
 	int	fds[2];
@@ -27,6 +24,30 @@ int	main(int argc, char *argv[]){
 	char *args_pid1[]={"/bin/cat", "Makefile", NULL};
 	char *args_pid2[]={"/usr/bin/grep", "pipe", NULL};
 
+	int i;
+	i = 0;	
+	paths = NULL;
+	while (envp[i] && !paths)
+	{
+		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
+		{
+			paths = ft_split(envp[i] + 5, ':');
+			if (!paths)
+			{
+				printf("Something bad happened");
+				return (1);	
+			}
+		}	
+		i++;
+	}
+	i = 0;
+	while (paths[i])
+	{
+		printf("%s\n", paths[i]);
+		i++;
+	}
+	return 0;	
+	
 	if (pipe(fds) == -1){
 		printf("Error in pipe\n");
 		return (1);
