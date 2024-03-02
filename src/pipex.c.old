@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 21:36:12 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 16:58:18 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/02 16:47:05 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,35 @@
 void	leaks(void)
 {
 	system("leaks -q pipex");
+}
+
+char	*read_input_command1(char *file)
+{
+	int		fd;
+	char	*data;
+	char	*line;
+	char	*aux;
+
+	data = NULL;
+	fd = open(file, O_RDONLY);
+	if (fd == ERROR)
+	{
+		perror("Error al abrir archivo");
+		return (NULL);
+	}
+	line = get_next_line(fd);
+	while (line != NULL)
+	{
+		aux = data;
+		data = ft_strjoin(data, line);
+		free(line);
+		free(aux);
+		if (!data)
+			return (NULL);
+		line = get_next_line(fd);
+	}
+	close(fd);
+	return (data);
 }
 
 char	**get_path(char *envp[])
