@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 22:09:01 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 11:44:10 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/02 18:20:03 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,8 @@ typedef struct s_pipex
 	char	*output;
 }	t_pipex;
 
-void	print_exit(char *s, t_pipex *p);
 void	ft_bzero(void *s, size_t n);
 void	free_matrix(void **mem);
-void	exit_pipex(t_pipex *p);
 void	print(char *s);
 void	*ft_calloc(size_t count, size_t size);
 char	**ft_split(char const *s, char c);
@@ -51,5 +49,9 @@ int		clean_cache(char **cache, size_t len, char *nl_ptr);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
 size_t	ft_strlen(const char *s);
+void	print_and_free(char *s, t_pipex *p);
+void	perror_and_free(char *s, t_pipex *p);
+void	process1(t_pipex *p);
+void	process2(t_pipex *p);
 
 #endif

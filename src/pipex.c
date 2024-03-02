@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 21:36:12 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 16:58:18 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/02 18:51:52 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,12 @@ char	**get_path(char *envp[])
 		{
 			path = ft_split(envp[i] + 5, ':');
 			if (!path)
-			{
-				print("Error al guardar path\n");
 				return (NULL);
-			}
 		}
 		i++;
 	}
 	if (!path)
-		print("No he encontrado PATH, no puedo seguir\n");
+		return (NULL);
 	return (path);
 }
 
@@ -46,20 +43,15 @@ t_pipex	*init_pipex_struct(char *argv[], char *envp[])
 {
 	t_pipex	*p;
 
-	p = malloc(sizeof(t_pipex));
+	p = ft_calloc(1, sizeof(t_pipex));
 	if (!p)
-	{
-		print("Error al crear la estructura\n");
-		return (NULL);
-	}
+		print_and_free("Error al crear la estructura\n", NULL);
 	if (pipe(p->fd) == ERROR)
-		print_exit(PIPE_ERROR, p);
-	p->input = read_input_command1(argv[1]);
-	if (!p->input)
-		return (NULL);
+		print_and_free(PIPE_ERROR, p);
 	p->path = get_path(envp);
 	if (!p->path)
-		return (NULL);
+		print_and_free("Error al localizar PATH\n", p);
+	p->input = argv[1];
 	p->command1 = argv[2];
 	p->command2 = argv[3];
 	p->output = argv[4];
@@ -69,17 +61,30 @@ t_pipex	*init_pipex_struct(char *argv[], char *envp[])
 int	main(int argc, char *argv[], char *envp[])
 {
 	t_pipex	*p;
+	int	pid1;
+	int	pid2;
 
 	atexit(leaks);
 	if (argc == MIN_ARGUMENTS)
 	{
 		p = init_pipex_struct(argv, envp);
-		
-		if (!p)
-			exit_pipex(p);
-		print_exit("Todo ok, cierro\n", p);
+		pid1 = fork();
+		if (pid1 == ERROR)
+			print_and_free("Error al duplicar proceso 1\n", p);
+		if (pid1 == CHILD_PROCESS)
+			process1(p);
+		waitpid(pid1, NULL, 0);
+		pid2 = fork();
+		if (pid2 == ERROR)
+			print_and_free("Error al duplicar proceso 2\n", p);
+		if (pid2 == CHILD_PROCESS)
+			process2(p);
+		close(p->fd[0]);
+		close(p->fd[1]);
+		waitpid(pid2, NULL, 0);
+		// print_and_free("Todo ok, cierro\n", p);
 	}
 	else
-		print_exit("Parametros incorrectos\n", NULL);
+		print("Parametros incorrectos\n");
 	return (0);
 }

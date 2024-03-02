@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 20:26:44 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 11:44:37 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/02 17:36:30 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 # define SUCCESS 0
 # define ERROR -1
+# define CHILD_PROCESS 0
 # define MIN_ARGUMENTS 5
 # define PIPE_ERROR "Something was wrong executing pipe\n"
 

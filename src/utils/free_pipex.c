@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 21:06:42 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 16:44:26 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/02 18:40:16 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,17 +29,14 @@ void	free_matrix(void **mem)
 	free(mem);
 }
 
-void	exit_pipex(t_pipex *p)
+void	free_pipex(t_pipex *p)
 {
 	if (p)
 	{
 		if (p->path)
 			free_matrix((void **)p->path);
-		if (p->input)
-			free(p->input);
 		free(p);
 	}
-	exit(1);
 }
 
 void	print(char *s)
@@ -47,8 +44,16 @@ void	print(char *s)
 	write(1, s, ft_strlen(s));
 }
 
-void	print_exit(char *s, t_pipex *p)
+void	print_and_free(char *s, t_pipex *p)
 {
+	free_pipex(p);
 	print(s);
-	exit_pipex(p);
+	exit(1);
+}
+
+void	perror_and_free(char *s, t_pipex *p)
+{
+	free_pipex(p);
+	perror(s);
+	exit(1);
 }
