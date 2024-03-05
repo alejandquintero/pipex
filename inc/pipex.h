@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 22:09:01 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 18:20:03 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/05 22:29:35 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@ typedef struct s_pipex
 	char	*command1;
 	char	*command2;
 	char	*output;
+	char	**envp;
+	char	*cmd;
+	char	**cmd_args;
 }	t_pipex;
 
 void	ft_bzero(void *s, size_t n);
@@ -53,5 +56,6 @@ void	print_and_free(char *s, t_pipex *p);
 void	perror_and_free(char *s, t_pipex *p);
 void	process1(t_pipex *p);
 void	process2(t_pipex *p);
+void	free_pipex(t_pipex *p);
 
 #endif

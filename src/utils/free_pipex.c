@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/01 21:06:42 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 18:40:16 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/05 22:35:48 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ void	free_pipex(t_pipex *p)
 {
 	if (p)
 	{
+		if (p->cmd_args)
+			free_matrix((void **)p->cmd_args);
 		if (p->path)
 			free_matrix((void **)p->path);
 		free(p);

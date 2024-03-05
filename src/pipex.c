@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 21:36:12 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/02 18:51:52 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/05 22:37:07 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,9 @@ t_pipex	*init_pipex_struct(char *argv[], char *envp[])
 	p->command1 = argv[2];
 	p->command2 = argv[3];
 	p->output = argv[4];
+	p->envp = envp;
+	p->cmd = NULL;
+	p->cmd_args = NULL;
 	return (p);
 }
 
@@ -82,7 +85,7 @@ int	main(int argc, char *argv[], char *envp[])
 		close(p->fd[0]);
 		close(p->fd[1]);
 		waitpid(pid2, NULL, 0);
-		// print_and_free("Todo ok, cierro\n", p);
+		free_pipex(p);
 	}
 	else
 		print("Parametros incorrectos\n");

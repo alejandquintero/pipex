@@ -57,3 +57,12 @@
 	// 	printf("%s\n", p->path[i]);
 	// 	i++;
 	// }
+
+
+	printf("command: %s\n", command);
+int	j = 0;
+while (args[j + 1])
+{
+	printf("args: %s\n", args[j + 1]);
+	j++;
+}
