@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/02 17:30:40 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/05 22:39:10 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/06 20:17:31 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ char	*build_path_cmd(char *path, char **args)
 	return (command);
 }
 
-void	execute(t_pipex *p, char *command)
+int	execute(t_pipex *p, char *command)
 {
 	int	i;
 
@@ -44,41 +44,45 @@ void	execute(t_pipex *p, char *command)
 		if (!p->cmd)
 			print_and_free("Error al construir comando", p);
 		if (access(p->cmd, X_OK) == SUCCESS)
-		{
-			if (execve(p->cmd, p->cmd_args, p->envp) == -1)
-				perror("error al ejecutarse el comando");	
-		}
+			execve(p->cmd, p->cmd_args, p->envp);
 		free(p->cmd);
 		i++;
 	}
 	write(STDERR_FILENO, "pipex: command not found: ", 26);
 	write(STDERR_FILENO, p->cmd_args[0], ft_strlen(p->cmd_args[0]));
-	write(STDERR_FILENO, "\n", 1);
-	exit(EXIT_FAILURE);
+	return (ERROR);
 }
 
 void	process1(t_pipex *p)
 {
-	int		fd;	
+	int		fd_in;
+	int		fd_out;
 
-	fd = open(p->input, O_RDONLY);
-	if (fd == ERROR)
+	fd_in = open(p->input, O_RDONLY);
+	if (fd_in == ERROR)
 		perror_and_free("Error al abrir el infile", p);
-	dup2(fd, STDIN_FILENO);
+	fd_out = open(p->output, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	if (fd_out == ERROR)
+		perror_and_free("Error al crear el archivo de salida", p);
+	dup2(fd_in, STDIN_FILENO);
 	dup2(p->fd[1], STDOUT_FILENO);
 	close(p->fd[0]);
-	close(p->fd[1]);
-	close(fd);
-	execute(p, p->command1);
+	close(fd_in);
+	close(fd_out);
+	if (execute(p, p->command1) == ERROR)
+	{
+		write(p->fd[1], &(int){ERROR}, sizeof(int));
+		close(p->fd[1]);
+	}
 }
 
 void	process2(t_pipex *p)
 {
 	int fd;
 
-	fd = open(p->output, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(p->output, O_WRONLY);
 	if (fd == ERROR)
-		perror_and_free("Error al crear el archivo de salida", p);
+		perror_and_free("Error al abrir el archivo de salida", p);
 	dup2(p->fd[0], STDIN_FILENO);
 	dup2(fd, STDOUT_FILENO);
 	close(p->fd[0]);

@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 21:36:12 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/05 22:37:07 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/06 20:19:12 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,9 @@ int	main(int argc, char *argv[], char *envp[])
 	t_pipex	*p;
 	int	pid1;
 	int	pid2;
+	int error_code;
 
-	atexit(leaks);
+	// atexit(leaks);
 	if (argc == MIN_ARGUMENTS)
 	{
 		p = init_pipex_struct(argv, envp);
@@ -76,16 +77,29 @@ int	main(int argc, char *argv[], char *envp[])
 			print_and_free("Error al duplicar proceso 1\n", p);
 		if (pid1 == CHILD_PROCESS)
 			process1(p);
-		waitpid(pid1, NULL, 0);
-		pid2 = fork();
-		if (pid2 == ERROR)
-			print_and_free("Error al duplicar proceso 2\n", p);
-		if (pid2 == CHILD_PROCESS)
-			process2(p);
-		close(p->fd[0]);
-		close(p->fd[1]);
-		waitpid(pid2, NULL, 0);
-		free_pipex(p);
+		else
+		{
+			wait(NULL);
+			read(p->fd[0], &error_code, sizeof(error_code));
+			if (error_code == ERROR)
+			{
+				close(p->fd[0]);
+				close(p->fd[1]);
+				free_pipex(p);
+			}
+			else
+			{
+				pid2 = fork();
+				if (pid2 == ERROR)
+					print_and_free("Error al duplicar proceso 2\n", p);
+				if (pid2 == CHILD_PROCESS)
+					process2(p);
+				close(p->fd[0]);
+				close(p->fd[1]);
+				waitpid(pid2, NULL, 0);
+				free_pipex(p);
+			}
+		}
 	}
 	else
 		print("Parametros incorrectos\n");
