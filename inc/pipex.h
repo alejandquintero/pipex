@@ -21,15 +21,16 @@
 # include <string.h>
 # include <stdbool.h>
 # include "constants.h"
+# include <stdint.h>
 
 typedef struct s_pipex
 {
 	int		fd[2];
 	char	**path;
-	char	*input;
+	int		output;
+	int		input;
 	char	*command1;
 	char	*command2;
-	char	*output;
 	char	**envp;
 	char	*cmd;
 	char	**cmd_args;

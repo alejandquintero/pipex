@@ -55,38 +55,17 @@ int	execute(t_pipex *p, char *command)
 
 void	process1(t_pipex *p)
 {
-	int		fd_in;
-	int		fd_out;
-
-	fd_in = open(p->input, O_RDONLY);
-	if (fd_in == ERROR)
-		perror_and_free("Error al abrir el infile", p);
-	fd_out = open(p->output, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	if (fd_out == ERROR)
-		perror_and_free("Error al crear el archivo de salida", p);
-	dup2(fd_in, STDIN_FILENO);
-	dup2(p->fd[1], STDOUT_FILENO);
+	dup2(p->input, STDIN_FILENO);
 	close(p->fd[0]);
-	close(fd_in);
-	close(fd_out);
+	dup2(p->fd[1], STDOUT_FILENO);
 	if (execute(p, p->command1) == ERROR)
-	{
-		write(p->fd[1], &(int){ERROR}, sizeof(int));
-		close(p->fd[1]);
-	}
+		exit(EXIT_FAILURE);
 }
 
 void	process2(t_pipex *p)
 {
-	int fd;
-
-	fd = open(p->output, O_WRONLY);
-	if (fd == ERROR)
-		perror_and_free("Error al abrir el archivo de salida", p);
 	dup2(p->fd[0], STDIN_FILENO);
-	dup2(fd, STDOUT_FILENO);
-	close(p->fd[0]);
 	close(p->fd[1]);
-	close(fd);
+	dup2(p->output, STDOUT_FILENO);
 	execute(p, p->command2);
 }
