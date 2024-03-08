@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/02 17:30:40 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/08 22:27:41 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:22:52 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,22 @@ void	execute(t_pipex *p, char *command)
 	int	i;
 
 	i = 0;
-	if (*command)
+	p->args = ft_split(command, ' ');
+	if (!*p->args)
+		print_and_free(SYS_ERROR, p);
+	if (access(p->args[0], X_OK) == SUCCESS)
+		execve(p->args[0], p->args, p->envp);
+	while (p->path[i] != NULL)
 	{
-		p->args = ft_split(command, ' ');
-		if (!p->args)
+		p->cmd = build_path_cmd(p->path[i], p->args);
+		if (!p->cmd)
 			print_and_free(SYS_ERROR, p);
-		if (access(p->args[0], X_OK) == SUCCESS)
-			execve(p->args[0], p->args, p->envp);
-		while (p->path[i])
-		{
-			p->cmd = build_path_cmd(p->path[i], p->args);
-			if (!p->cmd)
-				print_and_free(SYS_ERROR, p);
-			if (access(p->cmd, X_OK) == SUCCESS)
-				execve(p->cmd, p->args, p->envp);
-			free(p->cmd);
-			i++;
-		}
-		print_error_cmd(p);
+		if (access(p->cmd, X_OK) == SUCCESS)
+			execve(p->cmd, p->args, p->envp);
+		free(p->cmd);
+		i++;
 	}
+	print_error_cmd(p);
 	exit(EXIT_FAILURE);
 }
 
