@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/02 17:30:40 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/06 20:17:31 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/08 22:17:56 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,7 @@ char	*build_path_cmd(char *path, char **args)
 
 	aux = ft_strjoin(path, "/");
 	if (!aux)
-	{
-		print("Error al crear comando\n");
-		return (NULL);	
-	}
+		return (NULL);
 	command = ft_strjoin(aux, args[0]);
 	free(aux);
 	if (!command)
@@ -30,42 +27,72 @@ char	*build_path_cmd(char *path, char **args)
 	return (command);
 }
 
-int	execute(t_pipex *p, char *command)
+void	execute(t_pipex *p, char *command)
 {
 	int	i;
 
 	i = 0;
-	p->cmd_args = ft_split(command, ' ');
-	if (!p->cmd_args)
-		print_and_free("Error al crear argumentos\n", p);
-	while (p->path[i])
+	if (*command)
 	{
-		p->cmd = build_path_cmd(p->path[i], p->cmd_args);
-		if (!p->cmd)
-			print_and_free("Error al construir comando", p);
-		if (access(p->cmd, X_OK) == SUCCESS)
-			execve(p->cmd, p->cmd_args, p->envp);
-		free(p->cmd);
-		i++;
+		p->args = ft_split(command, ' ');
+		if (!p->args)
+			print_and_free(SYS_ERROR, p);
+		if (access(p->args[0], X_OK) == SUCCESS)
+			execve(p->args[0], p->args, p->envp);
+		while (p->path[i])
+		{
+			p->cmd = build_path_cmd(p->path[i], p->args);
+			if (!p->cmd)
+				print_and_free(SYS_ERROR, p);
+			if (access(p->cmd, X_OK) == SUCCESS)
+				execve(p->cmd, p->args, p->envp);
+			free(p->cmd);
+			i++;
+		}
+		print_error_cmd(p);
 	}
-	write(STDERR_FILENO, "pipex: command not found: ", 26);
-	write(STDERR_FILENO, p->cmd_args[0], ft_strlen(p->cmd_args[0]));
-	return (ERROR);
+	exit(EXIT_FAILURE);
 }
 
 void	process1(t_pipex *p)
 {
 	dup2(p->input, STDIN_FILENO);
-	close(p->fd[0]);
-	dup2(p->fd[1], STDOUT_FILENO);
-	if (execute(p, p->command1) == ERROR)
-		exit(EXIT_FAILURE);
+	close(p->pipe[0]);
+	dup2(p->pipe[1], STDOUT_FILENO);
+	execute(p, p->command1);
 }
 
 void	process2(t_pipex *p)
 {
-	dup2(p->fd[0], STDIN_FILENO);
-	close(p->fd[1]);
+	dup2(p->pipe[0], STDIN_FILENO);
+	close(p->pipe[1]);
 	dup2(p->output, STDOUT_FILENO);
 	execute(p, p->command2);
+}
+
+int	execute_processes(t_pipex *p)
+{
+	int	status_pid1;
+	int	status_pid2;
+	int	pid1;
+	int	pid2;
+
+	pid1 = fork();
+	if (pid1 == ERROR)
+		print_and_free(ERROR_FORK, p);
+	if (pid1 == CHILD_PROCESS)
+		process1(p);
+	wait(&status_pid1);
+	pid2 = fork();
+	if (pid2 == ERROR)
+		print_and_free(ERROR_FORK, p);
+	if (pid2 == CHILD_PROCESS)
+		process2(p);
+	close_pipes(p);
+	close_files(p);
+	wait(&status_pid2);
+	free_pipex(p);
+	if (status_pid2 != 0)
+		return (PIPEX_ERROR);
+	return (PIPEX_SUCCESS);
 }
