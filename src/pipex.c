@@ -6,7 +6,7 @@
 /*   By: aquinter <aquinter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 21:36:12 by aquinter          #+#    #+#             */
-/*   Updated: 2024/03/08 22:28:10 by aquinter         ###   ########.fr       */
+/*   Updated: 2024/03/09 11:19:21 by aquinter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	main(int argc, char *argv[], char *envp[])
 {
 	t_pipex	*p;
 
-	atexit(leaks);
+	// atexit(leaks);
 	if (argc == MIN_ARGUMENTS)
 	{
 		p = init_pipex_struct(argv, envp);
